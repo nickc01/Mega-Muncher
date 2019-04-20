@@ -141,6 +141,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 367f5524b98b5a64fae19d3f605f984b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PelletPrefab: {fileID: 8162512779017605485, guid: 10bb2a7ed0732ed47a33a69afb674f1d,
+    type: 3}
+  MuncherPrefab: {fileID: 6008411630181292002, guid: 6296cd8c8c60f3b4d8a03f52cfc74597,
+    type: 3}
 --- !u!4 &84445724
 Transform:
   m_ObjectHideFlags: 0

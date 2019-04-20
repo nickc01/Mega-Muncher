@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class Teleporter : MonoBehaviour
 {
-    public static GameManager Game { get; private set; }
-    [Header("Prefabs")]
-    public GameObject PelletPrefab;
-    public GameObject MuncherPrefab;
     // Start is called before the first frame update
     void Start()
     {
-        Game = this;
+        
     }
 
     // Update is called once per frame
