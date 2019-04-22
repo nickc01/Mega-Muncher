@@ -4,8 +4,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [CreateAssetMenu]
-public class GhostSpawner : Tile
+public class PowerUpSpawner : Tile
 {
-    public string GhostScript;
-    public Color color;
+    public GameObject PowerUpPrefab;
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 public class Pellet : MonoBehaviour, IEatable
 {
     public static List<Pellet> Pellets = new List<Pellet>();
+    protected virtual bool DestroyOnEat => true;
 
     public virtual void Start()
     {
@@ -16,7 +17,10 @@ public class Pellet : MonoBehaviour, IEatable
         if (Pellets.Contains(this))
         {
             Pellets.Remove(this);
-            Destroy(gameObject);
+            if (DestroyOnEat)
+            {
+                Destroy(gameObject);
+            }
             if (Pellets.Count == 0)
             {
                 Debug.Log("WIN");

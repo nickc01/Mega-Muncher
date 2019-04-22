@@ -9,11 +9,14 @@ public enum Direction
     Up,
     Down,
     Left,
-    Right
+    Right,
+    None
 }
 
 public class Muncher : MonoBehaviour
 {
+    public static Muncher MainMuncher { get; private set; }
+    public float Speed => MovementSpeed;
     [SerializeField] float MovementSpeed = 3f;
     [Range(0f,0.5f)]
     [SerializeField] float MovementFlexibility = 0.15f;
@@ -35,8 +38,9 @@ public class Muncher : MonoBehaviour
     Vector3? NextTilePosition;
     float movementCounter = 0;
 
-    private void Start()
+    public void OnMuncherSpawn()
     {
+        MainMuncher = this;
         LastTilePosition = Level.SpawnPoint;
         CurrentPosition = LastTilePosition;
         Debug.Log("Spawn Position = " + LastTilePosition);
@@ -45,6 +49,7 @@ public class Muncher : MonoBehaviour
         {
             NextTilePosition = null;
         }
+        CameraManager.Target = gameObject;
         previousDirection = direction;
     }
 

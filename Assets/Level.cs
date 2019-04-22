@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Reflection;
 using static GameManager;
+using Extensions;
 
 public class Level : MonoBehaviour
 {
@@ -18,6 +20,8 @@ public class Level : MonoBehaviour
     public static BoundsInt Boundaries => Singleton.gameMap.cellBounds;
     void Start()
     {
+        Assembly RunningAssembly = Assembly.GetExecutingAssembly();
+        List<Ghost> spawnedGhosts = new List<Ghost>();
         Singleton = this;
         SpawnPointSet = false;
         ghostSpawns.Clear();
@@ -53,15 +57,28 @@ public class Level : MonoBehaviour
                             GameObject.Instantiate(Game.PelletPrefab, pos + new Vector3(0f,0.5f), Quaternion.identity);
                         }
                     }
-                    if (tile is GhostSpawner)
+                    if (tile is GhostSpawner ghost)
                     {
-                        ghostSpawns.Add(pos);
+                        var ghostType = RunningAssembly.GetType(ghost.GhostScript);
+                        var newGhost = GameObject.Instantiate(GameManager.Game.GhostPrefab, pos + new Vector3(0.5f, 0.5f), Quaternion.identity).AddComponent(ghostType) as Ghost;
+                        //newGhost.OnGhostSpawn(pos);
+                        spawnedGhosts.Add(newGhost);
+                        newGhost.GetComponent<SpriteRenderer>().color = ghost.color;
+                        gameMap.SetTile(pos, null);
+                    }
+                    if (tile is PowerUpSpawner power)
+                    {
+                        var newPowerUp = GameObject.Instantiate(power.PowerUpPrefab, pos + new Vector3(0.5f, 0.5f), Quaternion.identity);
                         gameMap.SetTile(pos, null);
                     }
                 }
             }
         }
-        GameObject.Instantiate(Game.MuncherPrefab, SpawnPoint + new Vector3(0.5f, 0.5f), Quaternion.identity);
+        GameObject.Instantiate(Game.MuncherPrefab, SpawnPoint + new Vector3(0.5f, 0.5f), Quaternion.identity).GetComponent<Muncher>().OnMuncherSpawn();
+        foreach (var ghost in spawnedGhosts)
+        {
+            ghost.OnGhostSpawn((ghost.transform.position - new Vector3(0.5f, 0.5f)).ToInt());
+        }
     }
 
     // Update is called once per frame

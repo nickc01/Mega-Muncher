@@ -13,24 +13,30 @@ public class LevelManager : MonoBehaviour
     [RuntimeInitializeOnLoadMethod]
     static void StartLevelLoad()
     {
-        var activeScene = SceneManager.GetActiveScene();
-        if (activeScene.name.Contains("Level"))
+        //var activeScene = SceneManager.GetActiveScene();
+        for (int i = 0; i < SceneManager.sceneCount; i++)
         {
-            CurrentLevel = int.Parse(Regex.Match(activeScene.name, @"Level\s*(\d+)").Groups[1].Value);
-            if (SceneManager.GetSceneByName("Core").isLoaded == false)
+            var activeScene = SceneManager.GetSceneAt(i);
+            Debug.Log(activeScene.name);
+            if (activeScene.name.Contains("Level"))
             {
-                SceneManager.LoadScene("Core", LoadSceneMode.Additive);
-                SceneManager.sceneLoaded += (scene, loadMethod) =>
+                CurrentLevel = int.Parse(Regex.Match(activeScene.name, @"Level\s*(\d+)").Groups[1].Value);
+                if (SceneManager.GetSceneByName("Core").isLoaded == false)
                 {
-                    if (scene.name == "Core")
+                    SceneManager.LoadScene("Core", LoadSceneMode.Additive);
+                    SceneManager.sceneLoaded += (scene, loadMethod) =>
                     {
-                        CoreLoaded = true;
-                    }
-                };
-            }
-            else
-            {
-                CoreLoaded = true;
+                        if (scene.name == "Core")
+                        {
+                            CoreLoaded = true;
+                        }
+                    };
+                }
+                else
+                {
+                    CoreLoaded = true;
+                }
+                break;
             }
         }
     }
