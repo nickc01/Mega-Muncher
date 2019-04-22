@@ -1,4 +1,5 @@
 ﻿using Extensions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,7 +28,8 @@ public abstract class Ghost : MonoBehaviour, IEatable
     public GhostState CurrentState { get; protected set; } = GhostState.Targeting;
     public Color SpriteColor { get; protected set; } = Color.white;
     public Color VulnerableColor { get; protected set; } = new Color(140, 20, 252, 255);
-    public virtual Vector3 Target => Muncher.MainMuncher.transform.position;
+    public Vector3 SpawnPoint { get; private set; }
+    public virtual Vector3 Target => Dead ? SpawnPoint : Muncher.MainMuncher.transform.position;
     private bool vulnerableInternal = false;
     private bool vulnerableVisualInternal = false;
     public bool Vulnerable
@@ -35,7 +37,6 @@ public abstract class Ghost : MonoBehaviour, IEatable
         get => vulnerableInternal;
         set
         {
-            Debug.Log("VULERABILITY = " + value);
             vulnerableInternal = value;
             VulnerableVisual = value;
         }
@@ -58,12 +59,31 @@ public abstract class Ghost : MonoBehaviour, IEatable
         }
     }
 
+    private bool deadInternal = false;
+    public bool Dead
+    {
+        get => deadInternal;
+        set
+        {
+            deadInternal = value;
+            if (value)
+            {
+                OnDead?.Invoke(this);
+            }
+            renderer.enabled = !value;
+            Vulnerable = false;
+        }
+    }
+
+    public event Action<Ghost> OnDead;
+
     protected Vector3Int PreviousPosition { get; private set; }
     protected Direction PreviousDirection { get; private set; } = None;
     protected Vector3Int NextPosition { get; private set; }
     protected virtual float Speed => 4f;
     protected virtual float VulnerableSpeed => Speed / 2f;
-    private float CurrentSpeed => Vulnerable ? VulnerableSpeed : Speed;
+    protected virtual float DeadSpeed => Speed * 2f;
+    private float CurrentSpeed => Dead ? DeadSpeed : Vulnerable ? VulnerableSpeed : Speed;
     private bool Moving = false;
     private float MoveCounter = 0f;
 
@@ -135,15 +155,16 @@ public abstract class Ghost : MonoBehaviour, IEatable
         GameManager.OnLevelEnd -= OnLevelFinish;
     }
 
-    public virtual void OnGhostSpawn(Vector3Int SpawnPoint)
+    public virtual void OnGhostSpawn(Vector3Int spawnPoint)
     {
+        SpawnPoint = spawnPoint;
         SpawnedGhosts.Add(this);
         GameManager.OnLevelEnd += OnLevelFinish;
         eyeAnimator = transform.GetChild(0).GetComponent<Animator>();
         renderer = GetComponent<SpriteRenderer>();
         SpriteColor = renderer.color;
-        transform.position = SpawnPoint + new Vector3(0.5f, 0.5f);
-        PreviousPosition = SpawnPoint;
+        transform.position = spawnPoint + new Vector3(0.5f, 0.5f);
+        PreviousPosition = spawnPoint;
         var direction = PickDirection(PreviousPosition, PreviousPosition, None);
         var result = DirectionToVector(direction);
         if (result != Vector3Int.zero && !Level.Map.HasTile(PreviousPosition + result))
@@ -208,7 +229,7 @@ public abstract class Ghost : MonoBehaviour, IEatable
 
     private static Direction RandomDirection(List<Direction> directions)
     {
-        return directions[Random.Range(0,directions.Count)];
+        return directions[UnityEngine.Random.Range(0,directions.Count)];
     }
 
     private IEnumerator GhostUpdate()
@@ -217,6 +238,10 @@ public abstract class Ghost : MonoBehaviour, IEatable
         {
             if (Moving == false)
             {
+                if (Dead && NextPosition == SpawnPoint)
+                {
+                    Dead = false;
+                }
                 var direction = PickDirection(PreviousPosition, NextPosition, PreviousDirection);
                 var result = DirectionToVector(direction);
                 if (result != Vector3Int.zero && !Level.Map.HasTile(NextPosition + result))
@@ -250,6 +275,17 @@ public abstract class Ghost : MonoBehaviour, IEatable
 
     public void OnEat(Muncher muncher)
     {
-        
+        if (Dead)
+        {
+            return;
+        }
+        if (Vulnerable)
+        {
+            Dead = true;
+        }
+        else
+        {
+            muncher.enabled = false;
+        }
     }
 }

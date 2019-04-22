@@ -11,6 +11,7 @@ public class PowerPellet : PowerUp
     new SpriteRenderer renderer;
     Coroutine ClockRoutine;
     Coroutine FlickerRoutine;
+    List<Ghost> VulnerableGhosts;
 
     public override void Start()
     {
@@ -19,9 +20,22 @@ public class PowerPellet : PowerUp
         ClockRoutine = StartCoroutine(Clock());
     }
 
+
+    private void OnGhostDie(Ghost ghost)
+    {
+        VulnerableGhosts.Remove(ghost);
+        ghost.Vulnerable = false;
+    }
+
     protected override void OnPowerUpActivate(Muncher muncher)
     {
-        Ghost.AllVulnerable = true;
+        VulnerableGhosts = new List<Ghost>();
+        foreach (var ghost in Ghost.Ghosts)
+        {
+            VulnerableGhosts.Add(ghost);
+            ghost.Vulnerable = true;
+            ghost.OnDead += OnGhostDie;
+        }
         StopCoroutine(ClockRoutine);
         base.OnPowerUpActivate(muncher);
     }
@@ -31,9 +45,15 @@ public class PowerPellet : PowerUp
         if (FlickerRoutine != null)
         {
             StopCoroutine(FlickerRoutine);
-            Ghost.AllVulnerableVisual = false;
         }
-        Ghost.AllVulnerable = false;
+        foreach (var ghost in VulnerableGhosts)
+        {
+            ghost.Vulnerable = false;
+            ghost.OnDead -= OnGhostDie;
+        }
+        /*VulnerableGhosts.ForEach(ghost => {
+            ghost.Vulnerable = false;
+        });*/
         base.OnPowerUpInterrupt();
     }
 
@@ -46,7 +66,7 @@ public class PowerPellet : PowerUp
     protected override void OnPowerUpDeactivate()
     {
         StopCoroutine(FlickerRoutine);
-        Ghost.AllVulnerable = false;
+        VulnerableGhosts.ForEach(ghost => ghost.Vulnerable = false);
         base.OnPowerUpDeactivate();
     }
 
@@ -66,9 +86,9 @@ public class PowerPellet : PowerUp
         while (true)
         {
             yield return new WaitForSeconds(1f / GhostFlickerRate);
-            Ghost.AllVulnerableVisual = false;
+            VulnerableGhosts.ForEach(ghost => ghost.VulnerableVisual = false);
             yield return new WaitForSeconds(1f / GhostFlickerRate);
-            Ghost.AllVulnerableVisual = true;
+            VulnerableGhosts.ForEach(ghost => ghost.VulnerableVisual = true);
         }
     }
 }
