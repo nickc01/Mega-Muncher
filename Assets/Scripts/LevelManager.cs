@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,7 +18,6 @@ public class LevelManager : MonoBehaviour
         for (int i = 0; i < SceneManager.sceneCount; i++)
         {
             var activeScene = SceneManager.GetSceneAt(i);
-            Debug.Log(activeScene.name);
             if (activeScene.name.Contains("Level"))
             {
                 CurrentLevel = int.Parse(Regex.Match(activeScene.name, @"Level\s*(\d+)").Groups[1].Value);
@@ -36,8 +36,43 @@ public class LevelManager : MonoBehaviour
                 {
                     CoreLoaded = true;
                 }
-                break;
             }
         }
+    }
+
+    public static async Task UnloadCurrentLevel()
+    {
+        bool Done = false;
+        IEnumerator Unloader()
+        {
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName("Core"));
+            yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("Level " + CurrentLevel));
+            Done = true;
+        }
+        if (CurrentLevel != 0)
+        {
+            CoroutineManager.StartCoroutine(Unloader());
+            await Task.Run(() => {
+                while (Done == false) { }
+            });
+            CurrentLevel = 0;
+        }
+    }
+
+    public static async Task LoadLevel(int Level)
+    {
+        await UnloadCurrentLevel();
+        bool Done = false;
+        IEnumerator Loader()
+        {
+            yield return SceneManager.LoadSceneAsync("Level " + Level, LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName("Level " + Level));
+            Done = true;
+        }
+        CoroutineManager.StartCoroutine(Loader());
+        await Task.Run(() => {
+            while (Done == false) { }
+        });
+        CurrentLevel = Level;
     }
 }

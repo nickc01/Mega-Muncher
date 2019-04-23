@@ -29,6 +29,13 @@ public class CameraManager : MonoBehaviour
         }
     }
 
+    //Sets the target and sets the camera's position to be at the target instantly
+    public static void SetTargetForceful(GameObject target)
+    {
+        Target = target;
+        MainManager.transform.position = new Vector3(target.transform.position.x,target.transform.position.y,MainManager.transform.position.z);
+    }
+
     private void Update()
     {
         if (Target != null)

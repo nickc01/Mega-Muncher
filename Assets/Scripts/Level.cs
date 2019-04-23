@@ -6,6 +6,8 @@ using UnityEngine.Tilemaps;
 using System.Reflection;
 using static GameManager;
 using Extensions;
+using System;
+using UnityEngine.SceneManagement;
 
 public class Level : MonoBehaviour
 {
@@ -13,19 +15,25 @@ public class Level : MonoBehaviour
     static Level Singleton { get; set; }
     public static Tilemap Map => Singleton.gameMap;
     [SerializeField] Tilemap gameMap;
+    [SerializeField] AudioClip levelMusic;
     public static Vector3Int SpawnPoint { get; private set; }
     private static bool SpawnPointSet = false;
-    private static List<Vector3Int> ghostSpawns = new List<Vector3Int>();
-    public static ReadOnlyCollection<Vector3Int> GhostSpawns => ghostSpawns.AsReadOnly();
+    //private static List<Vector3Int> ghostSpawns = new List<Vector3Int>();
+    //public static ReadOnlyCollection<Vector3Int> GhostSpawns => ghostSpawns.AsReadOnly();
     public static BoundsInt Boundaries => Singleton.gameMap.cellBounds;
+
+    private static Dictionary<int, List<Teleporter>> TeleporterLists = new Dictionary<int, List<Teleporter>>();
+    public static AudioClip LevelMusic { get; private set; } 
+
     void Start()
     {
-        Assembly RunningAssembly = Assembly.GetExecutingAssembly();
-        List<Ghost> spawnedGhosts = new List<Ghost>();
+        //List<IOnLevelPostLoad> postLoads = new List<IOnLevelPostLoad>();
+        Action postLoads = null;
         Singleton = this;
         SpawnPointSet = false;
-        ghostSpawns.Clear();
+        //ghostSpawns.Clear();
         gameMap.CompressBounds();
+        LevelMusic = levelMusic;
         var bounds = gameMap.cellBounds;
         for (int x = bounds.xMin; x <= bounds.xMax; x++)
         {
@@ -57,28 +65,19 @@ public class Level : MonoBehaviour
                             GameObject.Instantiate(Game.PelletPrefab, pos + new Vector3(0f,0.5f), Quaternion.identity);
                         }
                     }
-                    if (tile is GhostSpawner ghost)
+                    if (tile is IOnLevelLoad loader)
                     {
-                        var ghostType = RunningAssembly.GetType(ghost.GhostScript);
-                        var newGhost = GameObject.Instantiate(GameManager.Game.GhostPrefab, pos + new Vector3(0.5f, 0.5f), Quaternion.identity).AddComponent(ghostType) as Ghost;
-                        //newGhost.OnGhostSpawn(pos);
-                        spawnedGhosts.Add(newGhost);
-                        newGhost.GetComponent<SpriteRenderer>().color = ghost.color;
-                        gameMap.SetTile(pos, null);
+                        loader.OnLevelLoad(pos);
                     }
-                    if (tile is PowerUpSpawner power)
+                    else if (tile is IOnLevelLoadWithPost post)
                     {
-                        var newPowerUp = GameObject.Instantiate(power.PowerUpPrefab, pos + new Vector3(0.5f, 0.5f), Quaternion.identity);
-                        gameMap.SetTile(pos, null);
+                        postLoads += post.OnLevelLoad(pos);
                     }
                 }
             }
         }
         GameObject.Instantiate(Game.MuncherPrefab, SpawnPoint + new Vector3(0.5f, 0.5f), Quaternion.identity).GetComponent<Muncher>().OnMuncherSpawn();
-        foreach (var ghost in spawnedGhosts)
-        {
-            ghost.OnGhostSpawn((ghost.transform.position - new Vector3(0.5f, 0.5f)).ToInt());
-        }
+        postLoads?.Invoke();
     }
 
     // Update is called once per frame

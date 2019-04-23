@@ -32,9 +32,12 @@ public class PowerPellet : PowerUp
         VulnerableGhosts = new List<Ghost>();
         foreach (var ghost in Ghost.Ghosts)
         {
-            VulnerableGhosts.Add(ghost);
-            ghost.Vulnerable = true;
-            ghost.OnDead += OnGhostDie;
+            if (!ghost.Dead)
+            {
+                VulnerableGhosts.Add(ghost);
+                ghost.Vulnerable = true;
+                ghost.OnDead += OnGhostDie;
+            }
         }
         StopCoroutine(ClockRoutine);
         base.OnPowerUpActivate(muncher);
@@ -51,9 +54,6 @@ public class PowerPellet : PowerUp
             ghost.Vulnerable = false;
             ghost.OnDead -= OnGhostDie;
         }
-        /*VulnerableGhosts.ForEach(ghost => {
-            ghost.Vulnerable = false;
-        });*/
         base.OnPowerUpInterrupt();
     }
 

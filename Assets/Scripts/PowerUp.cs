@@ -21,9 +21,19 @@ public abstract class PowerUp : Pellet ,IEatable
     private Coroutine WaitCoroutine;
     private Type thisType;
 
+    [RuntimeInitializeOnLoadMethod]
+    public static void LoadInit()
+    {
+        GameManager.OnLevelEnd += () =>
+        {
+            Dominants.Clear();
+            TypeBasedInterupts.Clear();
+        };
+    }
+
     public override void OnEat(Muncher muncher)
     {
-        GameManager.OnGameEnd += OnPowerUpInterrupt;
+        GameManager.OnGamePause += OnPowerUpInterrupt;
         this.muncher = muncher;
         thisType = GetType();
         if (!Dominants.ContainsKey(thisType))
@@ -99,7 +109,7 @@ public abstract class PowerUp : Pellet ,IEatable
     protected virtual void OnPowerUpInterrupt()
     {
         StopCoroutine(WaitCoroutine);
-        GameManager.OnGameEnd -= OnPowerUpInterrupt;
+        GameManager.OnGamePause -= OnPowerUpInterrupt;
         TypeBasedInterupts[thisType] -= OnPowerUpInterrupt;
         if (TypeBasedInterupts[thisType] == null)
         {
@@ -133,7 +143,7 @@ public abstract class PowerUp : Pellet ,IEatable
     //Destroys the power-up by default and removes it from the pellet list
     protected virtual void OnPowerUpDeactivate()
     {
-        GameManager.OnGameEnd -= OnPowerUpInterrupt;
+        GameManager.OnGamePause -= OnPowerUpInterrupt;
         TypeBasedInterupts[thisType] -= OnPowerUpInterrupt;
         if (TypeBasedInterupts[thisType] == null)
         {

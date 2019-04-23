@@ -13,9 +13,10 @@ public enum Direction
     None
 }
 
-public class Muncher : MonoBehaviour
+public class Muncher : GameEventHandler
 {
     public static Muncher MainMuncher { get; private set; }
+    public static Direction MuncherDirection => MainMuncher.direction;
     public float Speed => MovementSpeed;
     [SerializeField] float MovementSpeed = 3f;
     [Range(0f,0.5f)]
@@ -32,18 +33,42 @@ public class Muncher : MonoBehaviour
         }
     }
 
+    [SerializeField] int lives = 3;
+
+    public static int Lives
+    {
+        get => MainMuncher.lives;
+        set
+        {
+            LivesCounter.Lives = value;
+            MainMuncher.lives = value;
+        }
+    }
+
 
     Vector3 LastTilePosition;
     Vector3 CurrentPosition;
     Vector3? NextTilePosition;
+    Animator animator;
     float movementCounter = 0;
 
-    public void OnMuncherSpawn()
+    protected override void OnGameStart()
     {
-        MainMuncher = this;
+        enabled = true;
+        animator.enabled = true;
+    }
+
+    protected override void OnGamePause()
+    {
+        enabled = false;
+        animator.enabled = false;
+    }
+
+    protected override void OnLevelReset()
+    {
+        CameraManager.SetTargetForceful(gameObject);
         LastTilePosition = Level.SpawnPoint;
         CurrentPosition = LastTilePosition;
-        Debug.Log("Spawn Position = " + LastTilePosition);
         NextTilePosition = LastTilePosition + DirToVector(direction);
         if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
         {
@@ -51,6 +76,19 @@ public class Muncher : MonoBehaviour
         }
         CameraManager.Target = gameObject;
         previousDirection = direction;
+        transform.position = Level.SpawnPoint + new Vector3(0.5f, 0.5f);
+    }
+
+    public void OnMuncherSpawn()
+    {
+        StartEvents();
+        animator = GetComponent<Animator>();
+        animator.enabled = false;
+        enabled = false;
+        animator.enabled = false;
+        MainMuncher = this;
+        LivesCounter.Lives = Lives;
+        OnLevelReset();
     }
 
     private void Update()
@@ -69,6 +107,17 @@ public class Muncher : MonoBehaviour
                 movementCounter = 0;
                 LastTilePosition = NextTilePosition.Value;
                 NextTilePosition = LastTilePosition + DirToVector(direction);
+
+                var teleporter = Teleporter.GetTeleporter(CurrentPosition.ToInt());
+                if (teleporter != null)
+                {
+                    var telePosition = teleporter.LinkedTeleporter.Position;
+                    LastTilePosition = telePosition;
+                    CurrentPosition = telePosition;
+                    NextTilePosition = telePosition + DirToVector(direction);
+                    transform.position = NextTilePosition.Value + new Vector3(0.5f, 0.5f);
+                }
+
                 if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
                 {
                     NextTilePosition = LastTilePosition + DirToVector(previousDirection);
