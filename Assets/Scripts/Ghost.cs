@@ -88,6 +88,7 @@ public abstract class Ghost : GameEventHandler, IEatable
     private float CurrentSpeed => Dead ? DeadSpeed : Vulnerable ? VulnerableSpeed : Speed;
     private bool Moving = false;
     private float MoveCounter = 0f;
+    private Coroutine UnStuckerRoutine;
 
     private Animator eyeAnimator;
     private new SpriteRenderer renderer;
@@ -96,7 +97,7 @@ public abstract class Ghost : GameEventHandler, IEatable
     {
         return B == OppositeOf(A);
     }
-    private static Direction OppositeOf(Direction A)
+    protected static Direction OppositeOf(Direction A)
     {
         switch (A)
         {
@@ -112,7 +113,7 @@ public abstract class Ghost : GameEventHandler, IEatable
                 return default;
         }
     }
-    private static Vector3Int DirToVector(Direction A)
+    protected static Vector3Int DirToVector(Direction A)
     {
         switch (A)
         {
@@ -211,6 +212,11 @@ public abstract class Ghost : GameEventHandler, IEatable
         Dead = false;
         transform.position = SpawnPoint + new Vector3(0.5f, 0.5f);
         PreviousPosition = SpawnPoint;
+        if (UnStuckerRoutine != null)
+        {
+            StopCoroutine(UnStuckerRoutine);
+            UnStuckerRoutine = null;
+        }
         var direction = PickDirection(PreviousPosition, PreviousPosition, None);
         var result = DirectionToVector(direction);
         if (result != Vector3Int.zero && !Level.Map.HasTile(PreviousPosition + result))
@@ -232,7 +238,12 @@ public abstract class Ghost : GameEventHandler, IEatable
 
     protected override void OnGamePause()
     {
-       Enabled = false;
+        Enabled = false;
+        if (UnStuckerRoutine != null)
+        {
+            StopCoroutine(UnStuckerRoutine);
+            UnStuckerRoutine = null;
+        }
     }
 
     public virtual void OnGhostSpawn(Vector3Int spawnPoint)
@@ -317,6 +328,11 @@ public abstract class Ghost : GameEventHandler, IEatable
                     if (Dead && NextPosition == SpawnPoint)
                     {
                         Dead = false;
+                        if (UnStuckerRoutine != null)
+                        {
+                            StopCoroutine(UnStuckerRoutine);
+                            UnStuckerRoutine = null;
+                        }
                     }
                     //Debug.Log("Move = " + Test);
                     var direction = PickDirection(PreviousPosition, NextPosition, PreviousDirection);
@@ -360,33 +376,13 @@ public abstract class Ghost : GameEventHandler, IEatable
     }
 
     //Used in case if the ghost gets stuck when trying to move back to the spawnpoint
-    /*IEnumerator UnStucker()
+    IEnumerator UnStucker()
     {
-        float Multiplier = 1f;
-        for (int i = 0; i < 3; i++)
-        {
-            yield return new WaitForSeconds(3f);
-            AllowReversing = false;
-            yield return new WaitForSeconds(1.5f * Multiplier);
-            AllowReversing = true;
-            Multiplier += 1.3f;
-        }
+        //Wait for 8 seconds
+        yield return new WaitForSeconds(8f);
         //Teleport back to the spawn
-        Moving = false;
-        transform.position = SpawnPoint + new Vector3(0.5f, 0.5f);
-        PreviousPosition = SpawnPoint;
-        var direction = PickDirection(PreviousPosition, PreviousPosition, None);
-        var result = DirectionToVector(direction);
-        if (result != Vector3Int.zero && !Level.Map.HasTile(PreviousPosition + result))
-        {
-            NextPosition = PreviousPosition + result;
-            PreviousDirection = direction;
-        }
-        else
-        {
-            NextPosition = PreviousPosition;
-        }
-    }*/
+        OnLevelReset();
+    }
 
     public void OnEat(Muncher muncher)
     {
@@ -397,7 +393,9 @@ public abstract class Ghost : GameEventHandler, IEatable
         if (Vulnerable)
         {
             ScoreCounter.Score += 10;
+            AudioSource.PlayClipAtPoint(GameManager.Game.EatGhostSound, CameraManager.Main.transform.position);
             Dead = true;
+            UnStuckerRoutine = StartCoroutine(UnStucker());
         }
         else
         {

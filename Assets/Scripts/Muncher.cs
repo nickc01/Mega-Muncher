@@ -50,6 +50,7 @@ public class Muncher : GameEventHandler
     Vector3 CurrentPosition;
     Vector3? NextTilePosition;
     Animator animator;
+    new SpriteRenderer renderer;
     float movementCounter = 0;
 
     protected override void OnGameStart()
@@ -64,8 +65,15 @@ public class Muncher : GameEventHandler
         animator.enabled = false;
     }
 
+    protected override void OnLose()
+    {
+        renderer.enabled = false;
+        Explosion.PlayExplosion(transform.position);
+    }
+
     protected override void OnLevelReset()
     {
+        renderer.enabled = true;
         CameraManager.SetTargetForceful(gameObject);
         LastTilePosition = Level.SpawnPoint;
         CurrentPosition = LastTilePosition;
@@ -82,6 +90,7 @@ public class Muncher : GameEventHandler
     public void OnMuncherSpawn()
     {
         StartEvents();
+        renderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         animator.enabled = false;
         enabled = false;

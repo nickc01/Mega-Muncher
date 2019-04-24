@@ -12,10 +12,12 @@ using UnityEngine.SceneManagement;
 public class Level : MonoBehaviour
 {
     // Start is called before the first frame update
-    static Level Singleton { get; set; }
+    public static Level Singleton { get; set; }
     public static Tilemap Map => Singleton.gameMap;
     [SerializeField] Tilemap gameMap;
     [SerializeField] AudioClip levelMusic;
+    public Color LevelColor;
+    public Color SecondaryLevelColor;
     public static Vector3Int SpawnPoint { get; private set; }
     private static bool SpawnPointSet = false;
     //private static List<Vector3Int> ghostSpawns = new List<Vector3Int>();
@@ -27,6 +29,7 @@ public class Level : MonoBehaviour
 
     void Start()
     {
+        BackgroundImages.SetColor(LevelColor, SecondaryLevelColor);
         //List<IOnLevelPostLoad> postLoads = new List<IOnLevelPostLoad>();
         Action postLoads = null;
         Singleton = this;

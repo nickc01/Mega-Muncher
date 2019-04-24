@@ -33,6 +33,7 @@ public abstract class PowerUp : Pellet ,IEatable
 
     public override void OnEat(Muncher muncher)
     {
+        AudioSource.PlayClipAtPoint(GameManager.Game.PowerUpSound, CameraManager.Main.transform.position,1f);
         GameManager.OnGamePause += OnPowerUpInterrupt;
         this.muncher = muncher;
         thisType = GetType();

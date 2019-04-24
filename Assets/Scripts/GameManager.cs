@@ -56,9 +56,11 @@ public class GameManager : MonoBehaviour
     public GameObject MuncherPrefab;
     public GameObject GhostPrefab;
     public GameObject TeleporterPrefab;
+    public GameObject ExplosionPrefab;
     [Header("Sounds")]
-    public AudioClip ExplosionSound;
     public AudioClip PelletSound;
+    public AudioClip PowerUpSound;
+    public AudioClip EatGhostSound;
 
     private AudioSource audio;
 
