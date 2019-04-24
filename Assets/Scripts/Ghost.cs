@@ -99,45 +99,6 @@ public abstract class Ghost : GameEventHandler, IEatable
     private Animator eyeAnimator; //The animator for the eyes of the ghost
     private new SpriteRenderer renderer; //The sprite renderer of the ghost
 
-    /*private static bool AreOpposites(Direction A, Direction B)
-    {
-        return B == OppositeOf(A);
-    }
-    protected static Direction OppositeOf(Direction A)
-    {
-        switch (A)
-        {
-            case Up:
-                return Down;
-            case Down:
-                return Up;
-            case Left:
-                return Right;
-            case Right:
-                return Left;
-            default:
-                return default;
-        }
-    }
-    protected static Vector3Int DirToVector(Direction A)
-    {
-        switch (A)
-        {
-            case Up:
-                return Vector3Int.up;
-            case Down:
-                return Vector3Int.down;
-            case Left:
-                return Vector3Int.left;
-            case Right:
-                return Vector3Int.right;
-            case None:
-                return Vector3Int.zero;
-        }
-        return default;
-    }*/
-
-
     protected virtual Direction PickDirection(Vector3Int PreviousPosition,Vector3Int CurrentPosition, Direction PreviousDirection)
     {
         //If the targeting is random

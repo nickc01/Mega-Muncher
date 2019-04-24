@@ -108,7 +108,10 @@ public class GameManager : MonoBehaviour
         //Wait for a second
         await Task.Run(() => Thread.Sleep(1000));
         //Show the win screen
-        UIManager.SetState("Win Screen");
+        if (Application.isPlaying)
+        {
+            UIManager.SetState("Win Screen");
+        }
     }
 
     //Called when the muncher gets hit by a ghost
@@ -122,6 +125,10 @@ public class GameManager : MonoBehaviour
         Game.audio.Pause();
         //Wait for a second
         await Task.Run(() => Thread.Sleep(1000));
+        if (!Application.isPlaying)
+        {
+            return;
+        }
         //Reduce the lives counter
         Muncher.Lives--;
         //If there are no more lives left
@@ -141,6 +148,10 @@ public class GameManager : MonoBehaviour
             UIManager.SetState("Ready");
             //Wait for two seconds
             await Task.Run(() => Thread.Sleep(2000));
+            if (!Application.isPlaying)
+            {
+                return;
+            }
             //Show the main game HUD
             UIManager.SetState("Game");
             //Set everything in the level into motion
@@ -168,6 +179,8 @@ public class GameManager : MonoBehaviour
             //Play the music
             Game.audio.Play();
         }
+        //Check for any pellets left in the game
+        Pellet.CheckForPellets();
     }
 
     //Goes to the main menu
@@ -210,6 +223,10 @@ public class GameManager : MonoBehaviour
         UIManager.SetState("Ready");
         //Wait for two seconds
         await Task.Run(() => Thread.Sleep(2000));
+        if (!Application.isPlaying)
+        {
+            return;
+        }
         //Show the main game HUD
         UIManager.SetState("Game");
         //Set everything into motion

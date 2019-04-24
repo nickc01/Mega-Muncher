@@ -43,4 +43,16 @@ public class Pellet : MonoBehaviour, IEatable
             }
         }
     }
+
+    //Checks if there are any pellets left in the game
+    //Wins the game if there are none left
+    public static void CheckForPellets()
+    {
+        //If there are no more pellets in the level
+        if (Pellets.Count == 0)
+        {
+            //Win the game
+            GameManager.CurrentGameState = GameState.Win;
+        }
+    }
 }

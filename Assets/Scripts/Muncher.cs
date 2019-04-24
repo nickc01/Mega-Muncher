@@ -116,7 +116,7 @@ public class Muncher : GameEventHandler
         animator = GetComponent<Animator>();
         //Disable the animation
         animator.enabled = false;
-        //Disable the muncher
+        //Disable the muncher during the ready screen
         enabled = false;
         //Set the main muncher to be this
         MainMuncher = this;
