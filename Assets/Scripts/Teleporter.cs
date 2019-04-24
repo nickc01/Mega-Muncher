@@ -7,20 +7,23 @@ using UnityEngine;
 
 public class Teleporter : MonoBehaviour
 {
-    public static List<Teleporter> Teleporters = new List<Teleporter>();
-    public Vector3Int Position;
-    public int LinkID;
-    private Teleporter linkInternal;
-    public Teleporter LinkedTeleporter
+    public static List<Teleporter> Teleporters = new List<Teleporter>(); //The list of all the teleporters in the game
+    public Vector3Int Position; //The position of the teleporter
+    public int LinkID; //The link id of the teleporter
+    private Teleporter linkInternal; //The linked teleporter
+    public Teleporter LinkedTeleporter //The public interface for accessing the linked teleporter
     {
         get
         {
+            //Get the linked teleporter if there is one in the level
             if (linkInternal == null)
             {
                 foreach (var tele in Teleporters)
                 {
+                    //If the link ids match
                     if (tele != this && tele.LinkID == LinkID)
                     {
+                        //Set it to be linked
                         linkInternal = tele;
                         break;
                     }
@@ -33,17 +36,17 @@ public class Teleporter : MonoBehaviour
     [RuntimeInitializeOnLoadMethod]
     public static void LoadInitialization()
     {
-        GameManager.OnLevelEnd += () => Teleporters.Clear();
+        //Add an event to clear the teleporters link when the level unloads
+        GameManager.OnLevelUnload += () => Teleporters.Clear();
     }
 
 
     //Returns the teleporter at the position
+    //Returns null if there is no teleporter at the position
     public static Teleporter GetTeleporter(Vector3Int position)
     {
-        Debug.Log("TEST POSITION = " + position);
         foreach (var tele in Teleporters)
         {
-            Debug.Log("PORTAL POSITION = " + tele.Position);
             if (tele.Position == position)
             {
                 return tele;

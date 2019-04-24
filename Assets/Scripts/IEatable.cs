@@ -6,5 +6,6 @@ using System.Threading.Tasks;
 
 public interface IEatable
 {
+    //Called when the muncher eats any object that impliments this interface
     void OnEat(Muncher muncher);
 }

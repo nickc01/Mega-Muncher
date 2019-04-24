@@ -11,33 +11,33 @@ using UnityEngine.SceneManagement;
 
 public class Level : MonoBehaviour
 {
-    // Start is called before the first frame update
-    public static Level Singleton { get; set; }
-    public static Tilemap Map => Singleton.gameMap;
-    [SerializeField] Tilemap gameMap;
-    [SerializeField] AudioClip levelMusic;
-    public Color LevelColor;
-    public Color SecondaryLevelColor;
-    public static Vector3Int SpawnPoint { get; private set; }
-    private static bool SpawnPointSet = false;
-    //private static List<Vector3Int> ghostSpawns = new List<Vector3Int>();
-    //public static ReadOnlyCollection<Vector3Int> GhostSpawns => ghostSpawns.AsReadOnly();
-    public static BoundsInt Boundaries => Singleton.gameMap.cellBounds;
+    public static Level Singleton { get; set; } //The singleton for the level loader
+    public static Tilemap Map => Singleton.gameMap; //The public interface for accessing the loaded level map
+    [SerializeField] Tilemap gameMap; //The loaded level map
+    [SerializeField] AudioClip levelMusic; //The music for this specific level
+    public Color LevelColor; //The primary color for this specific level
+    public Color SecondaryLevelColor; //The secondary skybox color for this specific level
+    public static Vector3Int SpawnPoint { get; private set; } //The spawnpoint for the muncher
+    private static bool SpawnPointSet = false; //Is set to true if the spawnpoint is set
+    public static BoundsInt Boundaries => Singleton.gameMap.cellBounds; //The boundaries of the map
 
-    private static Dictionary<int, List<Teleporter>> TeleporterLists = new Dictionary<int, List<Teleporter>>();
-    public static AudioClip LevelMusic { get; private set; } 
+    private static Dictionary<int, List<Teleporter>> TeleporterLists = new Dictionary<int, List<Teleporter>>(); //A list of all the teleporters in the map
+    public static AudioClip LevelMusic => Singleton.levelMusic;  //The public interface for accessing the level music
 
     void Start()
     {
+        //Set the background colors
         BackgroundImages.SetColor(LevelColor, SecondaryLevelColor);
-        //List<IOnLevelPostLoad> postLoads = new List<IOnLevelPostLoad>();
+        //A list of functions called when the loading is finished
         Action postLoads = null;
+        //Update the singleton
         Singleton = this;
+        //Reset the spawnpoint
         SpawnPointSet = false;
-        //ghostSpawns.Clear();
+        //Compress the map boundaries
         gameMap.CompressBounds();
-        LevelMusic = levelMusic;
         var bounds = gameMap.cellBounds;
+        //Loop over every single tile in the map
         for (int x = bounds.xMin; x <= bounds.xMax; x++)
         {
             for (int y = bounds.yMin; y <= bounds.yMax; y++)
@@ -46,8 +46,10 @@ public class Level : MonoBehaviour
                 var tile = gameMap.GetTile(pos);
                 if (tile != null)
                 {
+                    //If the tile is a spawnpoint for the muncher
                     if (tile.name == "SpawnPoint")
                     {
+                        //Update the current spawnpoint if it is not already set
                         if (SpawnPointSet == false)
                         {
                             SpawnPointSet = true;
@@ -55,8 +57,10 @@ public class Level : MonoBehaviour
                         }
                         gameMap.SetTile(pos, null);
                     }
+                    //If the tile is a pellet tile
                     if (tile.name == "PelletTile")
                     {
+                        //Spawn pellet gameobjects at that tile
                         gameMap.SetTile(pos, null);
                         GameObject.Instantiate(Game.PelletPrefab, pos + new Vector3(0.5f, 0.5f), Quaternion.identity);
                         if (!gameMap.HasTile(pos + Vector3Int.down))
@@ -68,24 +72,24 @@ public class Level : MonoBehaviour
                             GameObject.Instantiate(Game.PelletPrefab, pos + new Vector3(0f,0.5f), Quaternion.identity);
                         }
                     }
+                    //If the tile has loading code
                     if (tile is IOnLevelLoad loader)
                     {
+                        //Run the loading code
                         loader.OnLevelLoad(pos);
                     }
+                    //If the tile has both loading code and post-loading code
                     else if (tile is IOnLevelLoadWithPost post)
                     {
+                        //Run the loading code and add the post-loading code to the postLoads event handler for later
                         postLoads += post.OnLevelLoad(pos);
                     }
                 }
             }
         }
+        //Spawn the muncher at the spawnpoint and call it's onspawn function
         GameObject.Instantiate(Game.MuncherPrefab, SpawnPoint + new Vector3(0.5f, 0.5f), Quaternion.identity).GetComponent<Muncher>().OnMuncherSpawn();
+        //Run the post-load code
         postLoads?.Invoke();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

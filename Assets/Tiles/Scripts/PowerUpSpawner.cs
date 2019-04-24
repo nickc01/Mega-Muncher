@@ -6,11 +6,15 @@ using UnityEngine.Tilemaps;
 [CreateAssetMenu]
 public class PowerUpSpawner : Tile, IOnLevelLoad
 {
-    public GameObject PowerUpPrefab;
+    public GameObject PowerUpPrefab; //The prefab to spawn
 
+
+    //When the level loads
     void IOnLevelLoad.OnLevelLoad(Vector3Int position)
     {
-        var newPowerUp = GameObject.Instantiate(PowerUpPrefab, position + new Vector3(0.5f, 0.5f), Quaternion.identity);
+        //Spawn the powerup
+        GameObject.Instantiate(PowerUpPrefab, position + new Vector3(0.5f, 0.5f), Quaternion.identity);
+        //Remove the spawner
         Level.Map.SetTile(position, null);
     }
 }

@@ -15,174 +15,224 @@ public enum Direction
 
 public class Muncher : GameEventHandler
 {
-    public static Muncher MainMuncher { get; private set; }
-    public static Direction MuncherDirection => MainMuncher.direction;
-    public float Speed => MovementSpeed;
-    [SerializeField] float MovementSpeed = 3f;
+    public static Muncher MainMuncher { get; private set; } //the main muncher in the level
+    public static Direction MuncherWantingDirection => MainMuncher.wantingDirection; //The public interface for accessing the direction the muncher WANTS to travel in
+    public float Speed => MovementSpeed; //The public interface for the muncher's speed
+    [SerializeField] float MovementSpeed = 3f; //The movement speed of the muncher
     [Range(0f,0.5f)]
-    [SerializeField] float MovementFlexibility = 0.15f;
-    [SerializeField] Direction direction = Right;
-    Direction prevDirectionInternal = Right;
-    Direction previousDirection
+    [SerializeField] float MovementFlexibility = 0.15f; //How easily the muncher is able to turn around corners.
+    [SerializeField] Direction wantingDirection = Right; //The current direction the muncher WANTS to travel in
+    Direction directionInternal = Right; //The direction the muncher IS traveling in
+    Direction Direction //The public interface for the direction the muncher IS traveling in
     {
-        get => prevDirectionInternal;
+        get => directionInternal;
         set
         {
-            prevDirectionInternal = value;
+            directionInternal = value;
+            //Update the rotation of the muncher based on the new value
             UpdateRotation(value);
         }
     }
 
-    [SerializeField] int lives = 3;
+    [SerializeField] int lives = 3; //The starting amount of lives for the muncher
 
-    public static int Lives
+    public static int Lives //The public interface for accessing the lives
     {
         get => MainMuncher.lives;
         set
         {
+            //Update the lives couunter as well
             LivesCounter.Lives = value;
             MainMuncher.lives = value;
         }
     }
 
 
-    Vector3 LastTilePosition;
-    Vector3 CurrentPosition;
-    Vector3? NextTilePosition;
-    Animator animator;
-    new SpriteRenderer renderer;
-    float movementCounter = 0;
+    Vector3 LastPosition; //The last position the player was at
+    Vector3 CurrentPosition; //The current position the muncher is at now
+    Vector3? NextPosition; //The next position the player is traveling towards
+    Animator animator; //The animator component for the muncher
+    new SpriteRenderer renderer; //The sprite renderer component of the muncher
+    float movementCounter = 0; //The movement counter for interpolating between the last position and the next position
 
+    //When the level starts
     protected override void OnGameStart()
     {
+        //Enable the player
         enabled = true;
+        //Enable the player's animator
         animator.enabled = true;
     }
 
+    //When the game is paused
     protected override void OnGamePause()
     {
+        //Disable the player
         enabled = false;
+        //Disable the player's animator
         animator.enabled = false;
     }
 
+    //When the player looses
     protected override void OnLose()
     {
+        //Hide the player
         renderer.enabled = false;
+        //Play an explosion effect
         Explosion.PlayExplosion(transform.position);
     }
 
+    //Called when the game wants to reset the objects to their starting positions
     protected override void OnLevelReset()
     {
+        //Show the player
         renderer.enabled = true;
+        //Set the camera to be at the muncher
         CameraManager.SetTargetForceful(gameObject);
-        LastTilePosition = Level.SpawnPoint;
-        CurrentPosition = LastTilePosition;
-        NextTilePosition = LastTilePosition + DirToVector(direction);
-        if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
+        //Update the last, current, and next positions
+        LastPosition = Level.SpawnPoint;
+        CurrentPosition = LastPosition;
+        NextPosition = LastPosition + wantingDirection.DirToVector();
+        //If the next position is invalid
+        if (Level.Map.HasTile(NextPosition.Value.ToInt()))
         {
-            NextTilePosition = null;
+            //Set it to null
+            NextPosition = null;
         }
+        //Set the camera's target to be the player
         CameraManager.Target = gameObject;
-        previousDirection = direction;
+        Direction = wantingDirection;
+        //Update the player's actual position
         transform.position = Level.SpawnPoint + new Vector3(0.5f, 0.5f);
     }
 
     public void OnMuncherSpawn()
     {
+        //Start the Game Event Handler
         StartEvents();
+        //Get the muncher's sprite renderer
         renderer = GetComponent<SpriteRenderer>();
+        //Get the player's animator controller
         animator = GetComponent<Animator>();
+        //Disable the animation
         animator.enabled = false;
+        //Disable the muncher
         enabled = false;
-        animator.enabled = false;
+        //Set the main muncher to be this
         MainMuncher = this;
+        //Set the lives counter
         LivesCounter.Lives = Lives;
+        //Reset the muncher to it's starting position
         OnLevelReset();
     }
 
     private void Update()
     {
-        if (NextTilePosition != null)
+        //If there is a next position to move to
+        if (NextPosition != null)
         {
+            //Increase the counter
             movementCounter += Time.deltaTime * MovementSpeed;
+            //Clamp the counter to be under 1
             if (movementCounter > 1)
             {
                 movementCounter = 1;
             }
-            CurrentPosition = Vector3.Lerp(LastTilePosition, NextTilePosition.Value, movementCounter);
-            if (movementCounter == 1 || (movementCounter >= 1f - MovementFlexibility && previousDirection != direction && !AreOpposites(previousDirection,direction)))
+            //Update the current position by linearly interpolating from the last position to the next position
+            CurrentPosition = Vector3.Lerp(LastPosition, NextPosition.Value, movementCounter);
+            //If the movement counter == 1
+            //OR the muncher is close enough to the destination to turn and the player is not making a 180 degree turn
+            if (movementCounter == 1 || (movementCounter >= 1f - MovementFlexibility && Direction != wantingDirection && !wantingDirection.AreOpposites(Direction)))
             {
-                CurrentPosition = NextTilePosition.Value;
+                //Rest the movement counter
                 movementCounter = 0;
-                LastTilePosition = NextTilePosition.Value;
-                NextTilePosition = LastTilePosition + DirToVector(direction);
-
+                //Update the Current, Last, and next position
+                CurrentPosition = NextPosition.Value;
+                LastPosition = NextPosition.Value;
+                NextPosition = LastPosition + wantingDirection.DirToVector();
+                //If there is a teleporter here
                 var teleporter = Teleporter.GetTeleporter(CurrentPosition.ToInt());
                 if (teleporter != null)
                 {
+                    //Teleport!!!
                     var telePosition = teleporter.LinkedTeleporter.Position;
-                    LastTilePosition = telePosition;
+                    //Update the last, current, next, and actual position accordingly
+                    LastPosition = telePosition;
                     CurrentPosition = telePosition;
-                    NextTilePosition = telePosition + DirToVector(direction);
-                    transform.position = NextTilePosition.Value + new Vector3(0.5f, 0.5f);
+                    NextPosition = telePosition + wantingDirection.DirToVector();
+                    transform.position = NextPosition.Value + new Vector3(0.5f, 0.5f);
                 }
 
-                if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
+                //If the next position is invalid
+                if (Level.Map.HasTile(NextPosition.Value.ToInt()))
                 {
-                    NextTilePosition = LastTilePosition + DirToVector(previousDirection);
-                    if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
+                    //Use the previous direction the player was traveling, instead of the direction the player wants to go in
+                    NextPosition = LastPosition + Direction.DirToVector();
+                    //If it is still invalid
+                    if (Level.Map.HasTile(NextPosition.Value.ToInt()))
                     {
-                        NextTilePosition = null;
+                        //Set the next position to null
+                        NextPosition = null;
                     }
                 }
+                //If it is valid
                 else
                 {
-                    previousDirection = direction;
+                    //Then set the direction to the direction the player wants to move in
+                    Direction = wantingDirection;
                 }
             }
             else
             {
-                if (AreOpposites(direction,previousDirection))
+                //If the player is making a 180 degree turn
+                if (wantingDirection.AreOpposites(Direction))
                 {
-                    previousDirection = direction;
-                    var cache = LastTilePosition;
-                    LastTilePosition = NextTilePosition.Value;
-                    NextTilePosition = cache;
+                    //Reverse the direction
+                    Direction = wantingDirection;
+                    //Swap the last and next position and invert the movement counter
+                    var cache = LastPosition;
+                    LastPosition = NextPosition.Value;
+                    NextPosition = cache;
                     movementCounter = 1 - movementCounter;
                 }
             }
         }
+        //If there is no direction to move in right now
         else
         {
             movementCounter = 0;
-            NextTilePosition = LastTilePosition + DirToVector(direction);
-            if (Level.Map.HasTile(NextTilePosition.Value.ToInt()))
+            //Get the next position based on the direction the player wants to go in
+            NextPosition = LastPosition + wantingDirection.DirToVector();
+            //If the next position is invalid
+            if (Level.Map.HasTile(NextPosition.Value.ToInt()))
             {
-                NextTilePosition = null;
+                //Set the next position to null
+                NextPosition = null;
             }
-            previousDirection = direction;
+            Direction = wantingDirection;
         }
-
-        //Debug.Log("Current Position = " + CurrentPosition);
+        //Update the player's actual position
         transform.position = CurrentPosition + new Vector3(0.5f, 0.5f);
+        //Change the direction the player wants to go based on the arrow key inputs
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            direction = Left;
+            wantingDirection = Left;
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            direction = Right;
+            wantingDirection = Right;
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            direction = Up;
+            wantingDirection = Up;
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            direction = Down;
+            wantingDirection = Down;
         }
     }
 
+    //Updates the player's actual rotatation based on the direction
     private void UpdateRotation(Direction direction)
     {
         switch (direction)
@@ -204,48 +254,14 @@ public class Muncher : GameEventHandler
         }
     }
 
-    private static Vector3Int DirToVector(Direction direction)
-    {
-        switch (direction)
-        {
-            case Up:
-                return new Vector3Int(0, 1, 0);
-            case Down:
-                return new Vector3Int(0, -1, 0);
-            case Left:
-                return new Vector3Int(-1, 0, 0);
-            case Right:
-                return new Vector3Int(1, 0, 0);
-        }
-        return default;
-    }
-
-    private static bool AreOpposites(Direction A, Direction B)
-    {
-        return B == OppositeOf(A);
-    }
-    private static Direction OppositeOf(Direction A)
-    {
-        switch (A)
-        {
-            case Up:
-                return Down;
-            case Down:
-                return Up;
-            case Left:
-                return Right;
-            case Right:
-                return Left;
-            default:
-                return default;
-        }
-    }
-
+    //When the player collides with something
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        //If the collided object is eatable
         var eatable = collision.GetComponent<IEatable>();
         if (eatable != null)
         {
+            //Eat it
             eatable.OnEat(this);
         }
     }

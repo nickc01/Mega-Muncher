@@ -7,13 +7,16 @@ using UnityEngine;
 
 public class PinkGhost : Ghost
 {
-    private float VectorDistance = 2f;
+    private float VectorDistance = 2f; //The distance away from the muncher to target
     public override Vector3 Target
     {
         get
         {
-            var muncherDirection = Muncher.MuncherDirection;
+            //Get the muncher's direction
+            var muncherDirection = Muncher.MuncherWantingDirection;
+            //Get the muncher's position
             var muncherPosition = Muncher.MainMuncher.transform.position;
+            //Set the final position to be in front of the player by a set amount
             Vector3 finalPosition = muncherPosition;
             switch (muncherDirection)
             {

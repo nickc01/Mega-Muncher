@@ -8,50 +8,27 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-    public static int CurrentLevel { get; private set; } = 0; //The current level in currently being played
+    public static int CurrentLevel { get; private set; } = 0; //The current level that is being played
     public static bool CoreLoaded { get; private set; } = false; //Set to true if the Core Scene is loaded
 
-    [RuntimeInitializeOnLoadMethod]
-    static void StartLevelLoad()
-    {
-        //var activeScene = SceneManager.GetActiveScene();
-        for (int i = 0; i < SceneManager.sceneCount; i++)
-        {
-            var activeScene = SceneManager.GetSceneAt(i);
-            if (activeScene.name.Contains("Level"))
-            {
-                CurrentLevel = int.Parse(Regex.Match(activeScene.name, @"Level\s*(\d+)").Groups[1].Value);
-                if (SceneManager.GetSceneByName("Core").isLoaded == false)
-                {
-                    SceneManager.LoadScene("Core", LoadSceneMode.Additive);
-                    SceneManager.sceneLoaded += (scene, loadMethod) =>
-                    {
-                        if (scene.name == "Core")
-                        {
-                            CoreLoaded = true;
-                        }
-                    };
-                }
-                else
-                {
-                    CoreLoaded = true;
-                }
-            }
-        }
-    }
-
+    //Unloads the current level
     public static async Task UnloadCurrentLevel()
     {
         bool Done = false;
         IEnumerator Unloader()
         {
+            //Set the active scene to the core scene
             SceneManager.SetActiveScene(SceneManager.GetSceneByName("Core"));
+            //Unload the level
             yield return SceneManager.UnloadSceneAsync(SceneManager.GetSceneByName("Level " + CurrentLevel));
             Done = true;
         }
+        //If there is a level to unload
         if (CurrentLevel != 0)
         {
+            //Run the unloader
             CoroutineManager.StartCoroutine(Unloader());
+            //Wait until it is done
             await Task.Run(() => {
                 while (Done == false) { }
             });
@@ -59,20 +36,27 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    //Loads in a new level
     public static async Task LoadLevel(int Level)
     {
+        //Unload the previous level if there is one
         await UnloadCurrentLevel();
         bool Done = false;
         IEnumerator Loader()
         {
+            //Load the level scene
             yield return SceneManager.LoadSceneAsync("Level " + Level, LoadSceneMode.Additive);
+            //Set it to be the active scene
             SceneManager.SetActiveScene(SceneManager.GetSceneByName("Level " + Level));
             Done = true;
         }
+        //Start the loader
         CoroutineManager.StartCoroutine(Loader());
+        //Wait until it is done
         await Task.Run(() => {
             while (Done == false) { }
         });
+        //Update the current level
         CurrentLevel = Level;
     }
 }
