@@ -16,12 +16,12 @@ namespace Extensions
             return new Vector3Int((int)vector.x, (int)vector.y, (int)vector.z);
         }
         //Returns true if the directions are opposites, and false otherwise
-        public static bool AreOpposites(this Direction A, Direction B)
+        public static bool IsOppositeTo(this Direction A, Direction B)
         {
-            return B == OppositeOf(A);
+            return B == Opposite(A);
         }
         //Returns the opposite of the current direction
-        public static Direction OppositeOf(this Direction A)
+        public static Direction Opposite(this Direction A)
         {
             switch (A)
             {
@@ -38,7 +38,7 @@ namespace Extensions
             }
         }
         //Converts the direction into a unit vector
-        public static Vector3Int DirToVector(this Direction A)
+        public static Vector3Int ToVector(this Direction A)
         {
             switch (A)
             {

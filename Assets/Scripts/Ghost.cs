@@ -163,9 +163,9 @@ public abstract class Ghost : GameEventHandler, IEatable
                 validDirections.Add(Right);
             }
             //If there are no valid directions, then take reversing 180 degrees into account
-            if (validDirections.Count == 0 && !Level.Map.HasTile(CurrentPosition + PreviousDirection.OppositeOf().DirToVector()))
+            if (validDirections.Count == 0 && !Level.Map.HasTile(CurrentPosition + PreviousDirection.Opposite().ToVector()))
             {
-                validDirections.Add(PreviousDirection.OppositeOf());
+                validDirections.Add(PreviousDirection.Opposite());
             }
             //Returns a random direction from the list
             return RandomDirection(validDirections);
@@ -207,9 +207,9 @@ public abstract class Ghost : GameEventHandler, IEatable
                 BestDirection = (RightTarget, Right);
             }
             //If there is no suitable direction to take, then take reversing into account
-            if (BestDirection.direction == None && !Level.Map.HasTile(CurrentPosition + PreviousDirection.OppositeOf().DirToVector()))
+            if (BestDirection.direction == None && !Level.Map.HasTile(CurrentPosition + PreviousDirection.Opposite().ToVector()))
             {
-                BestDirection = (BestDirection.distance, PreviousDirection.OppositeOf());
+                BestDirection = (BestDirection.distance, PreviousDirection.Opposite());
             }
             //Return the best direction to take
             return BestDirection.direction;
@@ -256,7 +256,7 @@ public abstract class Ghost : GameEventHandler, IEatable
         }
         //Run the PickDirection Function to pick the best direction to travel from here
         var direction = PickDirection(PreviousPosition, PreviousPosition, None);
-        var result = direction.DirToVector();
+        var result = direction.ToVector();
         //If a direction is chosen and there is no tile occupied in that space
         if (result != Vector3Int.zero && !Level.Map.HasTile(PreviousPosition + result))
         {
@@ -405,7 +405,7 @@ public abstract class Ghost : GameEventHandler, IEatable
                     }
                     //Pick the best direction to travel to
                     var direction = PickDirection(PreviousPosition, NextPosition, CurrentDirection);
-                    var result = direction.DirToVector();
+                    var result = direction.ToVector();
                     //If the direction is valid and there is no tile occupied there
                     if (result != Vector3Int.zero && !Level.Map.HasTile(NextPosition + result))
                     {

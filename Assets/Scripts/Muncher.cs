@@ -92,7 +92,7 @@ public class Muncher : GameEventHandler
         //Update the last, current, and next positions
         LastPosition = Level.SpawnPoint;
         CurrentPosition = LastPosition;
-        NextPosition = LastPosition + wantingDirection.DirToVector();
+        NextPosition = LastPosition + wantingDirection.ToVector();
         //If the next position is invalid
         if (Level.Map.HasTile(NextPosition.Value.ToInt()))
         {
@@ -142,14 +142,14 @@ public class Muncher : GameEventHandler
             CurrentPosition = Vector3.Lerp(LastPosition, NextPosition.Value, movementCounter);
             //If the movement counter == 1
             //OR the muncher is close enough to the destination to turn and the player is not making a 180 degree turn
-            if (movementCounter == 1 || (movementCounter >= 1f - MovementFlexibility && Direction != wantingDirection && !wantingDirection.AreOpposites(Direction)))
+            if (movementCounter == 1 || (movementCounter >= 1f - MovementFlexibility && Direction != wantingDirection && !wantingDirection.IsOppositeTo(Direction)))
             {
                 //Rest the movement counter
                 movementCounter = 0;
                 //Update the Current, Last, and next position
                 CurrentPosition = NextPosition.Value;
                 LastPosition = NextPosition.Value;
-                NextPosition = LastPosition + wantingDirection.DirToVector();
+                NextPosition = LastPosition + wantingDirection.ToVector();
                 //If there is a teleporter here
                 var teleporter = Teleporter.GetTeleporter(CurrentPosition.ToInt());
                 if (teleporter != null)
@@ -159,7 +159,7 @@ public class Muncher : GameEventHandler
                     //Update the last, current, next, and actual position accordingly
                     LastPosition = telePosition;
                     CurrentPosition = telePosition;
-                    NextPosition = telePosition + wantingDirection.DirToVector();
+                    NextPosition = telePosition + wantingDirection.ToVector();
                     transform.position = NextPosition.Value + new Vector3(0.5f, 0.5f);
                 }
 
@@ -167,7 +167,7 @@ public class Muncher : GameEventHandler
                 if (Level.Map.HasTile(NextPosition.Value.ToInt()))
                 {
                     //Use the previous direction the player was traveling, instead of the direction the player wants to go in
-                    NextPosition = LastPosition + Direction.DirToVector();
+                    NextPosition = LastPosition + Direction.ToVector();
                     //If it is still invalid
                     if (Level.Map.HasTile(NextPosition.Value.ToInt()))
                     {
@@ -185,7 +185,7 @@ public class Muncher : GameEventHandler
             else
             {
                 //If the player is making a 180 degree turn
-                if (wantingDirection.AreOpposites(Direction))
+                if (wantingDirection.IsOppositeTo(Direction))
                 {
                     //Reverse the direction
                     Direction = wantingDirection;
@@ -202,7 +202,7 @@ public class Muncher : GameEventHandler
         {
             movementCounter = 0;
             //Get the next position based on the direction the player wants to go in
-            NextPosition = LastPosition + wantingDirection.DirToVector();
+            NextPosition = LastPosition + wantingDirection.ToVector();
             //If the next position is invalid
             if (Level.Map.HasTile(NextPosition.Value.ToInt()))
             {
