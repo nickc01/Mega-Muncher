@@ -87,8 +87,6 @@ public class Muncher : GameEventHandler
     {
         //Show the player
         renderer.enabled = true;
-        //Set the camera to be at the muncher
-        CameraManager.SetTargetForceful(gameObject);
         //Update the last, current, and next positions
         LastPosition = Level.SpawnPoint;
         CurrentPosition = LastPosition;
@@ -104,6 +102,8 @@ public class Muncher : GameEventHandler
         Direction = wantingDirection;
         //Update the player's actual position
         transform.position = Level.SpawnPoint + new Vector3(0.5f, 0.5f);
+        //Set the camera to be at the muncher
+        CameraManager.SetTargetForceful(gameObject);
     }
 
     public void OnMuncherSpawn()
