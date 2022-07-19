@@ -12,7 +12,7 @@ public class LevelManager : MonoBehaviour
     public static bool CoreLoaded { get; private set; } = false; //Set to true if the Core Scene is loaded
 
     //Unloads the current level
-    public static async Task UnloadCurrentLevel()
+    public static IEnumerator UnloadCurrentLevel()
     {
         bool Done = false;
         IEnumerator Unloader()
@@ -28,19 +28,18 @@ public class LevelManager : MonoBehaviour
         {
             //Run the unloader
             CoroutineManager.StartCoroutine(Unloader());
+
             //Wait until it is done
-            await Task.Run(() => {
-                while (Done == false) { }
-            });
+            yield return new WaitUntil(() => Done);
             CurrentLevel = 0;
         }
     }
 
     //Loads in a new level
-    public static async Task LoadLevel(int Level)
+    public static IEnumerator LoadLevel(int Level)
     {
         //Unload the previous level if there is one
-        await UnloadCurrentLevel();
+        yield return UnloadCurrentLevel();
         bool Done = false;
         IEnumerator Loader()
         {
@@ -53,9 +52,7 @@ public class LevelManager : MonoBehaviour
         //Start the loader
         CoroutineManager.StartCoroutine(Loader());
         //Wait until it is done
-        await Task.Run(() => {
-            while (Done == false) { }
-        });
+        yield return new WaitUntil(() => Done);
         //Update the current level
         CurrentLevel = Level;
     }

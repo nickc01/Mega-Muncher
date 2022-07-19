@@ -52,7 +52,7 @@ public class Explosion : MonoBehaviour
                     //Set update to false
                     update = false;
                     //Run the Finish function
-                    _ = Finish();
+                    StartCoroutine(Finish());
                 }
                 else
                 {
@@ -64,23 +64,17 @@ public class Explosion : MonoBehaviour
     }
 
     //Waits until the audio source is done playing before deleting the object
-    private async Task Finish()
+    private IEnumerator Finish()
     {
         //Hide the sprite renderer
         renderer.enabled = false;
         //If the audio source is still playing, wait untill it is done
         while (audio.isPlaying)
         {
-            await Wait(50);
+            yield return new WaitForSeconds(50f / 1000f);
         }
         //Destroy the explosion sprite
         Destroy(gameObject);
-    }
-
-    //Waits a set amount of time
-    private async Task Wait(int milliseconds)
-    {
-        await Task.Run(() => Thread.Sleep(milliseconds));
     }
 
     //Plays an explosion at the set position

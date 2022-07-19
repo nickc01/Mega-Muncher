@@ -34,19 +34,19 @@ public class GameManager : MonoBehaviour
             switch (value)
             {
                 case GameState.Win: //Wins the game
-                    Win();
+                    CoroutineManager.StartCoroutine(Win());
                     break;
                 case GameState.Lose: //Loses the game
-                    Lose();
+                    CoroutineManager.StartCoroutine(Lose());
                     break;
                 case GameState.Menu: //Goes to the main menu
-                    MainMenu();
+                    CoroutineManager.StartCoroutine(MainMenu());
                     break;
                 case GameState.Playing: //Sets the game into motion
                     BeginPlaying();
                     break;
                 case GameState.Loading: //Starting the game with the selected level
-                    LoadLevel();
+                    CoroutineManager.StartCoroutine(LoadLevel());
                     break;
             }
         }
@@ -97,7 +97,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Called when the player collects all the pellets and wins the game
-    private async static void Win()
+    private static IEnumerator Win()
     {
         //Pause all the objects in the game
         OnGamePause?.Invoke();
@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour
         //Pause the game music
         Game.audio.Pause();
         //Wait for a second
-        await Task.Run(() => Thread.Sleep(1000));
+        yield return new WaitForSeconds(1f);
         //Show the win screen
         if (Application.isPlaying)
         {
@@ -115,7 +115,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Called when the muncher gets hit by a ghost
-    private async static void Lose()
+    private static IEnumerator Lose()
     {
         //Pause all the objects in the game
         OnGamePause?.Invoke();
@@ -124,10 +124,10 @@ public class GameManager : MonoBehaviour
         //Pause the game music
         Game.audio.Pause();
         //Wait for a second
-        await Task.Run(() => Thread.Sleep(1000));
+        yield return new WaitForSeconds(1f);
         if (!Application.isPlaying)
         {
-            return;
+            yield break;
         }
         //Reduce the lives counter
         Muncher.Lives--;
@@ -147,10 +147,10 @@ public class GameManager : MonoBehaviour
             //Show the ready screen
             UIManager.SetState("Ready");
             //Wait for two seconds
-            await Task.Run(() => Thread.Sleep(2000));
+            yield return new WaitForSeconds(2f);
             if (!Application.isPlaying)
             {
-                return;
+                yield break;
             }
             //Show the main game HUD
             UIManager.SetState("Game");
@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Goes to the main menu
-    public async static void MainMenu()
+    public static IEnumerator MainMenu()
     {
         //Show the main menu screen
         UIManager.SetState("Main Menu");
@@ -194,7 +194,7 @@ public class GameManager : MonoBehaviour
             //Tell all objects in the scene to close down and cleaup up for th next level
             OnLevelUnload?.Invoke();
             //Unload the level
-            await LevelManager.UnloadCurrentLevel();
+            yield return LevelManager.UnloadCurrentLevel();
         }
     }
 
@@ -205,7 +205,7 @@ public class GameManager : MonoBehaviour
         MainMenu();
     }
 
-    private static async void LoadLevel()
+    private static IEnumerator LoadLevel()
     {
         //If there is a level still loaded
         if (LevelManager.CurrentLevel != 0)
@@ -213,19 +213,19 @@ public class GameManager : MonoBehaviour
             //Tell all objects in the scene to close down and cleaup up for th next level
             OnLevelUnload?.Invoke();
             //Unload the level
-            await LevelManager.UnloadCurrentLevel();
+            yield return LevelManager.UnloadCurrentLevel();
         }
         //Load the selected level
-        await LevelManager.LoadLevel(SelectedLevel);
+        yield return LevelManager.LoadLevel(SelectedLevel);
         //Set the game music to the music for the level
         Game.audio.clip = Level.LevelMusic;
         //Show the ready screen
         UIManager.SetState("Ready");
         //Wait for two seconds
-        await Task.Run(() => Thread.Sleep(2000));
+        yield return new WaitForSeconds(2f);
         if (!Application.isPlaying)
         {
-            return;
+            yield break;
         }
         //Show the main game HUD
         UIManager.SetState("Game");
@@ -237,11 +237,11 @@ public class GameManager : MonoBehaviour
     public void RetryLevel()
     {
         //Reload the current level
-        LoadLevel();
+        CoroutineManager.StartCoroutine(LoadLevel());
     }
 
     //Used to go to the next level
-    public async static void NextLevel()
+    public static IEnumerator NextLevel()
     {
         //Go to the next level
         SelectedLevel++;
@@ -251,7 +251,7 @@ public class GameManager : MonoBehaviour
             //Tell all objects in the scene to close down and cleaup up for th next level
             OnLevelUnload?.Invoke();
             //Unload the level
-            await LevelManager.UnloadCurrentLevel();
+            yield return LevelManager.UnloadCurrentLevel();
         }
         //Load the next level
         CurrentGameState = GameState.Loading;
@@ -261,7 +261,7 @@ public class GameManager : MonoBehaviour
     public void NextLevelButton()
     {
         //Go to the next level
-        NextLevel();
+        CoroutineManager.StartCoroutine(NextLevel());
     }
 
     //Called when the "Play" button is pressed

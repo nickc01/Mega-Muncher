@@ -1,25 +1,57 @@
 fileFormatVersion: 2
 guid: 02ca8e57ea3ea554f880bfb3eafbe47a
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: MapTiles Color 2_0
-    21300002: MapTiles Color 2_1
-    21300004: MapTiles Color 2_2
-    21300006: MapTiles Color 2_3
-    21300008: MapTiles Color 2_4
-    21300010: MapTiles Color 2_5
-    21300012: MapTiles Color 2_6
-    21300014: MapTiles Color 2_7
-    21300016: MapTiles Color 2_8
-    21300018: MapTiles Color 2_9
-    21300020: MapTiles Color 2_10
-    21300022: MapTiles Color 2_11
-    21300024: MapTiles Color 2_12
-    21300026: MapTiles Color 2_13
-    21300028: MapTiles Color 2_14
-    21300030: MapTiles Color 2_15
+  internalIDToNameTable:
+  - first:
+      213: 21300000
+    second: MapTiles Color 2_0
+  - first:
+      213: 21300002
+    second: MapTiles Color 2_1
+  - first:
+      213: 21300004
+    second: MapTiles Color 2_2
+  - first:
+      213: 21300006
+    second: MapTiles Color 2_3
+  - first:
+      213: 21300008
+    second: MapTiles Color 2_4
+  - first:
+      213: 21300010
+    second: MapTiles Color 2_5
+  - first:
+      213: 21300012
+    second: MapTiles Color 2_6
+  - first:
+      213: 21300014
+    second: MapTiles Color 2_7
+  - first:
+      213: 21300016
+    second: MapTiles Color 2_8
+  - first:
+      213: 21300018
+    second: MapTiles Color 2_9
+  - first:
+      213: 21300020
+    second: MapTiles Color 2_10
+  - first:
+      213: 21300022
+    second: MapTiles Color 2_11
+  - first:
+      213: 21300024
+    second: MapTiles Color 2_12
+  - first:
+      213: 21300026
+    second: MapTiles Color 2_13
+  - first:
+      213: 21300028
+    second: MapTiles Color 2_14
+  - first:
+      213: 21300030
+    second: MapTiles Color 2_15
   externalObjects: {}
-  serializedVersion: 7
+  serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -36,9 +68,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -48,8 +83,8 @@ TextureImporter:
   textureSettings:
     serializedVersion: 2
     filterMode: 0
-    aniso: -1
-    mipBias: -100
+    aniso: 1
+    mipBias: 0
     wrapU: 1
     wrapV: 1
     wrapW: 1
@@ -70,11 +105,16 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 1
+  swizzle: 50462976
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -85,7 +125,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -96,7 +137,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: iPhone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -107,7 +149,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -118,7 +161,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Windows Store Apps
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -129,7 +173,8 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -140,6 +185,7 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -159,6 +205,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 2cc161c991b7eac4b868ed581c526da7
+      internalID: 21300000
       vertices: []
       indices: 
       edges: []
@@ -179,6 +226,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: ffd3f6cabc9ba3d428af099ddd94ccec
+      internalID: 21300002
       vertices: []
       indices: 
       edges: []
@@ -199,6 +247,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: bfcc46ee40019d1409ed9902f2b0232c
+      internalID: 21300004
       vertices: []
       indices: 
       edges: []
@@ -219,6 +268,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 8df284d842892db4792d548e8a1a9d87
+      internalID: 21300006
       vertices: []
       indices: 
       edges: []
@@ -239,6 +289,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: c1c5be22d2c77ae4cace6cd9e2a2bf70
+      internalID: 21300008
       vertices: []
       indices: 
       edges: []
@@ -259,6 +310,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 64663028a8e08944fa69f2224c13109c
+      internalID: 21300010
       vertices: []
       indices: 
       edges: []
@@ -279,6 +331,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 4706e23b157628e4cbf7f67ac1410089
+      internalID: 21300012
       vertices: []
       indices: 
       edges: []
@@ -299,6 +352,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 13d8bc62247086f40924a04fe4b57b7c
+      internalID: 21300014
       vertices: []
       indices: 
       edges: []
@@ -319,6 +373,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 20317451eae35b2489abfe7467949608
+      internalID: 21300016
       vertices: []
       indices: 
       edges: []
@@ -339,6 +394,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 55ae3c0e7887499408add5275879af2a
+      internalID: 21300018
       vertices: []
       indices: 
       edges: []
@@ -359,6 +415,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: cd6a76bef406ea14995de917a97e153d
+      internalID: 21300020
       vertices: []
       indices: 
       edges: []
@@ -379,6 +436,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 06db3acbfc9de914e8e740c234b9920a
+      internalID: 21300022
       vertices: []
       indices: 
       edges: []
@@ -399,6 +457,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 9b9e68ef6a4a99843afc88aaa0860cd9
+      internalID: 21300024
       vertices: []
       indices: 
       edges: []
@@ -419,6 +478,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 3c2d29371243a174bba11d95ff4c8ca6
+      internalID: 21300026
       vertices: []
       indices: 
       edges: []
@@ -439,6 +499,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 4098e76cf9e726c48bb012535428f7b6
+      internalID: 21300028
       vertices: []
       indices: 
       edges: []
@@ -459,6 +520,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 6e5d6983e71b5e044b76f31ed58aa1f9
+      internalID: 21300030
       vertices: []
       indices: 
       edges: []
@@ -467,13 +529,31 @@ TextureImporter:
     physicsShape: []
     bones: []
     spriteID: eaace514352e77b40a6bd2fe4deeb9d7
+    internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      MapTiles Color 2_10: 21300020
+      MapTiles Color 2_5: 21300010
+      MapTiles Color 2_15: 21300030
+      MapTiles Color 2_0: 21300000
+      MapTiles Color 2_3: 21300006
+      MapTiles Color 2_6: 21300012
+      MapTiles Color 2_4: 21300008
+      MapTiles Color 2_9: 21300018
+      MapTiles Color 2_14: 21300028
+      MapTiles Color 2_11: 21300022
+      MapTiles Color 2_12: 21300024
+      MapTiles Color 2_13: 21300026
+      MapTiles Color 2_1: 21300002
+      MapTiles Color 2_2: 21300004
+      MapTiles Color 2_8: 21300016
+      MapTiles Color 2_7: 21300014
   spritePackingTag: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

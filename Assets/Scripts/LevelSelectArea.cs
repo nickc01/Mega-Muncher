@@ -9,10 +9,15 @@ using UnityEngine.UI;
 public class LevelSelectArea : MonoBehaviour
 {
     [SerializeField] GameObject LevelButtonPrefab; //The prefab for the level buttons
-    async void Start()
+    void Start()
+    {
+        StartCoroutine(StartRoutine());
+    }
+
+    IEnumerator StartRoutine()
     {
         //Wait a small amount of time
-        await Task.Run(() => Thread.Sleep(100));
+        yield return new WaitForSeconds(100f / 1000f);
         //Loop over all the levels
         for (int i = 0; i < GameManager.Levels; i++)
         {
